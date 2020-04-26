@@ -1,6 +1,6 @@
 terraform {
   backend "gcs" {
-    bucket = "bucket-mmcafe-dev-001"
+    bucket = "terraform-state-bucket-123d44dbb345"
   }
 }
 

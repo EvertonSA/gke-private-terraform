@@ -74,7 +74,7 @@ resource "google_container_cluster" "cluster" {
 
 }
 
-resource "google_container_node_pool" var.node_pool_name {
+resource "google_container_node_pool" "private-np-1" {
   provider = google-beta
 
   name       = var.node_pool_name

@@ -5,4 +5,4 @@ gcloud services enable container.googleapis.com
 gcloud services enable dns.googleapis.com
 gcloud services enable sqladmin.googleapis.com
 gcloud services enable cloudresourcemanager.googleapis.com
-gsutil mb gs://bucket-mmcafe-dev-001/
+gsutil mb gs://terraform-state-bucket-123d44dbb345/
