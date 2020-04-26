@@ -1,7 +1,7 @@
 variable "project" {
   description = "The project in which to hold the components"
   type        = string
-  default     = "arakaki-in-company"
+  default     = "project_name"
 }
 
 variable "region" {
