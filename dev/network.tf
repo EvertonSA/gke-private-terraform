@@ -1,27 +1,9 @@
-/*
-Copyright 2018 Google LLC
-
-Licensed under the Apache License, Version 2.0 (the "License");
-you may not use this file except in compliance with the License.
-You may obtain a copy of the License at
-
-    https://www.apache.org/licenses/LICENSE-2.0
-
-Unless required by applicable law or agreed to in writing, software
-distributed under the License is distributed on an "AS IS" BASIS,
-WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-See the License for the specific language governing permissions and
-limitations under the License.
-*/
-
-// Create the GKE service account
 resource "google_service_account" "gke-sa" {
   account_id   = format("%s-node-sa", var.cluster_name)
   display_name = "GKE Security Service Account"
   project      = var.project
 }
 
-// Add the service account to the project
 resource "google_project_iam_member" "service-account" {
   count   = length(var.service_account_iam_roles)
   project = var.project
@@ -29,7 +11,6 @@ resource "google_project_iam_member" "service-account" {
   member  = format("serviceAccount:%s", google_service_account.gke-sa.email)
 }
 
-// Add user-specified roles
 resource "google_project_iam_member" "service-account-custom" {
   count   = length(var.service_account_custom_iam_roles)
   project = var.project
@@ -37,19 +18,14 @@ resource "google_project_iam_member" "service-account-custom" {
   member  = format("serviceAccount:%s", google_service_account.gke-sa.email)
 }
 
-// Enable required services on the project
 resource "google_project_service" "service" {
   count   = length(var.project_services)
   project = var.project
   service = element(var.project_services, count.index)
 
-  // Do not disable the service on destroy. On destroy, we are going to
-  // destroy the project, but we need the APIs available to destroy the
-  // underlying resources.
   disable_on_destroy = false
 }
 
-// Create a network for GKE
 resource "google_compute_network" "network" {
   name                    = format("%s-network", var.cluster_name)
   project                 = var.project
@@ -60,7 +36,6 @@ resource "google_compute_network" "network" {
   ]
 }
 
-// Create subnets
 resource "google_compute_subnetwork" "subnetwork" {
   name          = format("%s-subnet", var.cluster_name)
   project       = var.project
@@ -80,7 +55,7 @@ resource "google_compute_subnetwork" "subnetwork" {
     ip_cidr_range = "10.2.0.0/20"
   }
 }
-// Create an external NAT IP
+
 resource "google_compute_address" "nat" {
   name    = format("%s-nat-ip", var.cluster_name)
   project = var.project
@@ -91,7 +66,6 @@ resource "google_compute_address" "nat" {
   ]
 }
 
-// Create a cloud router for use by the Cloud NAT
 resource "google_compute_router" "router" {
   name    = format("%s-cloud-router", var.cluster_name)
   project = var.project
@@ -103,7 +77,6 @@ resource "google_compute_router" "router" {
   }
 }
 
-// Create a NAT router so the nodes can reach DockerHub, etc
 resource "google_compute_router_nat" "nat" {
   name    = format("%s-cloud-nat", var.cluster_name)
   project = var.project
@@ -127,18 +100,15 @@ resource "google_compute_router_nat" "nat" {
   }
 }
 
-// Bastion Host
 locals {
   hostname = format("%s-bastion", var.cluster_name)
 }
 
-// Dedicated service account for the Bastion instance
 resource "google_service_account" "bastion" {
   account_id   = format("%s-bastion-sa", var.cluster_name)
   display_name = "GKE Bastion SA"
 }
 
-// Allow access to the Bastion Host via SSH
 resource "google_compute_firewall" "bastion-ssh" {
   name          = format("%s-bastion-ssh", var.cluster_name)
   network       = google_compute_network.network.name
@@ -154,7 +124,6 @@ resource "google_compute_firewall" "bastion-ssh" {
   target_tags = ["bastion"]
 }
 
-// The user-data script on Bastion instance provisioning
 data "template_file" "startup_script" {
   template = <<-EOF
   sudo apt-get update -y
@@ -163,35 +132,28 @@ data "template_file" "startup_script" {
 
 }
 
-// The Bastion Host
 resource "google_compute_instance" "bastion" {
   name = local.hostname
-  machine_type = "g1-small"
+  machine_type = "f1-micro"
   zone = format("%s-a", var.region)
   project = var.project
   tags = ["bastion"]
 
-  // Specify the Operating System Family and version.
   boot_disk {
     initialize_params {
-      image = "debian-cloud/debian-9"
+      image = "centos-cloud/centos-8"
     }
   }
 
-  // Ensure that when the bastion host is booted, it will have tinyproxy
   metadata_startup_script = data.template_file.startup_script.rendered
 
-  // Define a network interface in the correct subnet.
   network_interface {
     subnetwork = google_compute_subnetwork.subnetwork.name
 
-    // Add an ephemeral external IP.
     access_config {
-      // Ephemeral IP
     }
   }
 
-  // Allow the instance to be stopped by terraform when updating configuration
   allow_stopping_for_update = true
 
   service_account {
@@ -199,11 +161,6 @@ resource "google_compute_instance" "bastion" {
     scopes = ["cloud-platform"]
   }
 
-  // local-exec providers may run before the host has fully initialized. However, they
-  // are run sequentially in the order they were defined.
-  //
-  // This provider is used to block the subsequent providers until the instance
-  // is available.
   provisioner "local-exec" {
     command = <<EOF
         READY=""

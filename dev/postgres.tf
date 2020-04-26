@@ -1,19 +1,3 @@
-/*
-Copyright 2018 Google LLC
-
-Licensed under the Apache License, Version 2.0 (the "License");
-you may not use this file except in compliance with the License.
-You may obtain a copy of the License at
-
-    https://www.apache.org/licenses/LICENSE-2.0
-
-Unless required by applicable law or agreed to in writing, software
-distributed under the License is distributed on an "AS IS" BASIS,
-WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-See the License for the specific language governing permissions and
-limitations under the License.
-*/
-
 resource "google_compute_global_address" "private_ip_address" {
   provider = google-beta
 
@@ -32,12 +16,10 @@ resource "google_service_networking_connection" "private_vpc_connection" {
   reserved_peering_ranges = [google_compute_global_address.private_ip_address.name]
 }
 
-// Create the Google SA
 resource "google_service_account" "access_postgres" {
   account_id = format("%s-pg-sa", var.cluster_name)
 }
 
-// Make an IAM policy that allows the K8S SA to be a workload identity user
 data "google_iam_policy" "access_postgres" {
   binding {
     role = "roles/iam.workloadIdentityUser"
@@ -48,13 +30,11 @@ data "google_iam_policy" "access_postgres" {
   }
 }
 
-// Bind the workload identity IAM policy to the GSA
 resource "google_service_account_iam_policy" "access_postgres" {
   service_account_id = google_service_account.access_postgres.name
   policy_data        = data.google_iam_policy.access_postgres.policy_data
 }
 
-// Attach cloudsql access permissions to the Google SA.
 resource "google_project_iam_binding" "access_postgres" {
   project = var.project
   role    = "roles/cloudsql.client"

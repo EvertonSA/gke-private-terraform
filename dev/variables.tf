@@ -1,20 +1,3 @@
-/*
-Copyright 2018 Google LLC
-
-Licensed under the Apache License, Version 2.0 (the "License");
-you may not use this file except in compliance with the License.
-You may obtain a copy of the License at
-
-    https://www.apache.org/licenses/LICENSE-2.0
-
-Unless required by applicable law or agreed to in writing, software
-distributed under the License is distributed on an "AS IS" BASIS,
-WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-See the License for the specific language governing permissions and
-limitations under the License.
-*/
-
-// Required values to be set in terraform.tfvars
 variable "project" {
   description = "The project in which to hold the components"
   type        = string
@@ -33,18 +16,28 @@ variable "zone" {
   default     = "southamerica-east1-a"
 }
 
-
-// Optional values that can be overridden or appended to if desired.
 variable "cluster_name" {
   description = "The name to give the new Kubernetes cluster."
   type        = string
   default     = "private-cluster"
 }
 
+variable "node_pool_name" {
+  description = "The name of the new node pool."
+  type        = string
+  default     = "private-np-1"
+}
+
 variable "bastion_tags" {
   description = "A list of tags applied to your bastion instance."
   type        = list
   default     = ["bastion"]
+}
+
+variable "node_machine_type" {
+  description = "The machine type that will be used by the node"
+  type        = string
+  default     = n1-highmem-2
 }
 
 variable "k8s_namespace" {
