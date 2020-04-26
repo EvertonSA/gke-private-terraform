@@ -1,3 +1,9 @@
+terraform {
+  backend "gcs" {
+    bucket = "bucket-mmcafe-dev-001"
+  }
+}
+
 provider "google" {
   version = "~> 2.12.0"
   project = var.project

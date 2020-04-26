@@ -1,9 +1,3 @@
-terraform {
-  backend "gcs" {
-    bucket = "bucket-mmcafe-dev-001"
-  }
-}
-
 resource "google_container_cluster" "cluster" {
   provider = google-beta
 
