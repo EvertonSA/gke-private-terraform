@@ -37,7 +37,7 @@ variable "bastion_tags" {
 variable "node_machine_type" {
   description = "The machine type that will be used by the node"
   type        = string
-  default     = n1-highmem-2
+  default     = "n1-highmem-2"
 }
 
 variable "k8s_namespace" {
