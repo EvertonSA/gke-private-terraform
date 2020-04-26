@@ -1,8 +1,17 @@
 # gke-private-terraform
 
-how to access bastion server:
-1 - gcloud beta compute ssh --zone "southamerica-east1-a" "private-cluster-bastion" --project "$project_name"
+## Requirements
+To apply these changes you must use Google Cloud Shell and has to be Owner of the GCP project. 
 
-how to provisioning the cluster:
-1 - terraform init
-2 - terraform apply -auto-approve
+### How to access bastion server:
+`gcloud beta compute ssh --zone "southamerica-east1-a" "private-cluster-bastion" --project "$project_name"`
+
+### How to provisioning the cluster:
+`
+# on root path, 
+./init.sh
+
+# on dev folder
+terraform init
+terraform apply -auto-approve
+`
