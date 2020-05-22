@@ -47,14 +47,8 @@ resource "google_container_cluster" "cluster" {
     services_secondary_range_name = google_compute_subnetwork.subnetwork.secondary_ip_range.1.range_name
   }
 
-  master_authorized_networks_config {
-    cidr_blocks {
-      display_name = "bastion"
-      cidr_block   = format("%s/32", google_compute_instance.bastion.network_interface.0.network_ip)
-    }
-  }
   private_cluster_config {
-    enable_private_endpoint = "true"
+    enable_private_endpoint = "false"
     enable_private_nodes    = "true"
     master_ipv4_cidr_block  = "172.16.0.16/28"
   }
