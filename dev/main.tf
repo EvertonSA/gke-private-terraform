@@ -80,7 +80,7 @@ resource "google_container_node_pool" "private-np-1" {
   name       = var.node_pool_name
   location   = var.zone
   cluster    = google_container_cluster.cluster.name
-  node_count = "2"
+  node_count = "0"
 
   management {
     auto_repair  = "true"

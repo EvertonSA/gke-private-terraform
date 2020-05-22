@@ -1,7 +1,7 @@
 variable "project" {
   description = "The project in which to hold the components"
   type        = string
-  default     = "project_name"
+  default     = "mmp5-dev"
 }
 
 variable "region" {
@@ -19,13 +19,13 @@ variable "zone" {
 variable "cluster_name" {
   description = "The name to give the new Kubernetes cluster."
   type        = string
-  default     = "private-cluster"
+  default     = "mmp5-private-cluster"
 }
 
 variable "node_pool_name" {
   description = "The name of the new node pool."
   type        = string
-  default     = "private-np-1"
+  default     = "mmp5-private-nodepool"
 }
 
 variable "bastion_tags" {

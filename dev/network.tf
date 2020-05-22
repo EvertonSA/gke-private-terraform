@@ -105,7 +105,7 @@ locals {
 }
 
 resource "google_service_account" "bastion" {
-  account_id   = format("%s-bastion-sa", var.cluster_name)
+  account_id   = format("%s-jump", var.cluster_name)
   display_name = "GKE Bastion SA"
 }
 
